@@ -44,11 +44,24 @@ You are given the following in the starter code:
 
 You must also provide an explanation of the running time of the getOrgBudget method
 
-Code Author: <Your Name Here>
+Code Author: Tenzing Lobden
 
 Running Time Analysis of get_org_budget
 --------------------
-<Your analysis here>
+Overall time complexity is O(n) = (O(n) + O(n)) + O(n)
+
+Constructor -> O(n) + O(n)
+There is one loop to create the employee nodes which is O(n) because we have to iterate through each employee object to create the Tree Nodes
+and then also have to loop again to create the connection for the Tree, so that's O(n) + O(n) = O(n). So the constructor is O(n)
+
+Get_org_budget() -> O(n)
+We recursively visit every node in the subtree starting from the root (employee id) and then make our way down and visit every node.
+This makes it O(n).
+
+Constructor = O(n) = O(n) + O(n)
+Get_org_budget() = O(n)
+
+Constructor + Get_org_budget() = O(n) (Final time complexity) = O(n) (Constructor) + O(n) (Get_org_budget())
 """
 
 
@@ -72,27 +85,70 @@ class EmployeeTreeNode:
 
 class AlgoBookOrganization:
     def __init__(self, employees):
-        self.tree = employees
-
+        self.map = {}
+        self.root = None
+        
+        # create Tree Nodes and add to 'map'
+        for i in employees:
+            node = EmployeeTreeNode(i)
+            if node.manager_id is None:
+                self.root = node
+            self.map[node.id] = node
+        
+        # connect the Tree Nodes with managers and employees
+        for i in employees:
+            # get current Tree Node
+            curr_node = self.map[i.employee_id]
+            
+            # special case for ceo, nothing to update
+            if i.manager_id is None:
+                continue
+            
+            # get current's manager Tree Node
+            manager_node = self.map[curr_node.manager_id]
+            
+            # add current employee to manager's direct reports and mark manager as an internal node
+            manager_node.reports.append(curr_node)
+            manager_node.is_manager = True
+            
+            # connect curr node to it's manager's node
+            curr_node.manager_node = manager_node
+            
     def get_org_budget(self, employee_id):
-        return None
-
-def main():
-    org = AlgoBookOrganization([
-                Employee(123, None, 1000),
-                Employee(233, 123, 1000),
-                Employee(301, 233, 100),
-                Employee(302, 233, 200),
-                Employee(305, 234, 1000),
-                Employee(304, 234, 0),
-                Employee(303, 234, 0),
-                Employee(234, 123, 2000),
-                Employee(235, 123, 3000)
+        # validate the employee_id
+        if employee_id not in self.map.keys():
+            return 0
+        
+        # get node that matches employee_id
+        curr_node = self.map[employee_id]
+        
+        # if it's just the ceo and no children
+        if curr_node.manager_node is None and curr_node.is_manager is False:
+            return curr_node.budget
+        
+        # get manager_node if it's a leaf node
+        if curr_node.is_manager is False:
+            curr_node = curr_node.manager_node
+        
+        # recursively update total by visiting each node
+        def dfs(root, total):
+            # leaf node
+            if root.is_manager is False:
+                # return accumulated total + current budget
+                return total + root.budget
+            
+            # add current 'manager_node' budget
+            total += root.budget
+            
+            # visit each employee node
+            for sub in root.reports:
+                # reassign the accumulated total from visitng employee nodes
+                total = dfs(sub, total)
+            
+            return total
+        
+        return dfs(curr_node, 0)
     
-            ])
-
-    print(org.tree)
-
 """
 DO NOT EDIT BELOW THIS
 Below is the unit testing suite for this file.
@@ -231,6 +287,5 @@ class TestAlgoBookOrganization:
 
 
 if __name__ == '__main__':
-    main()
     test_runner = TestAlgoBookOrganization()
     test_runner.run_unit_tests()
