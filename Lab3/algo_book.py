@@ -56,7 +56,7 @@ and then also have to loop again to create the connection for the Tree, so that'
 
 Get_org_budget() -> O(n)
 We recursively visit every node in the subtree starting from the root (employee id) and then make our way down and visit every node.
-This makes it O(n).
+This makes it O(n) worst case.
 
 Constructor = O(n) = O(n) + O(n)
 Get_org_budget() = O(n)
@@ -111,7 +111,7 @@ class AlgoBookOrganization:
             manager_node.reports.append(curr_node)
             manager_node.is_manager = True
             
-            # connect curr node to it's manager's node
+            # connect curr node to its manager's node
             curr_node.manager_node = manager_node
             
     def get_org_budget(self, employee_id):
@@ -142,7 +142,7 @@ class AlgoBookOrganization:
             
             # visit each employee node
             for sub in root.reports:
-                # reassign the accumulated total from visitng employee nodes
+                # reassign the accumulated total from visiting employee nodes
                 total = dfs(sub, total)
             
             return total
