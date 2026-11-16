@@ -48,20 +48,11 @@ Code Author: Tenzing Lobden
 
 Running Time Analysis of get_org_budget
 --------------------
-Overall time complexity is O(n) = (O(n) + O(n)) + O(n)
 
-Constructor -> O(n) + O(n)
-There is one loop to create the employee nodes which is O(n) because we have to iterate through each employee object to create the Tree Nodes
-and then also have to loop again to create the connection for the Tree, so that's O(n) + O(n) = O(n). So the constructor is O(n)
+Finding the EmployeeTreeNode from the dict is O(1) and then getting the manager is the same O(1). Then moving to traversing through the Nodes
+is O(n) and then adding the total is O(1) so each iteration is O(1). Each node we visit has to do the same work O(1), so we multiply 
+O(1) * n nodes which is O(n).
 
-Get_org_budget() -> O(n)
-We recursively visit every node in the subtree starting from the root (employee id) and then make our way down and visit every node.
-This makes it O(n) worst case.
-
-Constructor = O(n) = O(n) + O(n)
-Get_org_budget() = O(n)
-
-Constructor + Get_org_budget() = O(n) (Final time complexity) = O(n) (Constructor) + O(n) (Get_org_budget())
 """
 
 
@@ -105,7 +96,11 @@ class AlgoBookOrganization:
                 continue
             
             # get current's manager Tree Node
-            manager_node = self.map[curr_node.manager_id]
+            manager_node = self.map.get(curr_node.manager_id)
+            
+            # if no manager (ceo)
+            if manager_node is None:
+                continue
             
             # add current employee to manager's direct reports and mark manager as an internal node
             manager_node.reports.append(curr_node)
@@ -115,12 +110,12 @@ class AlgoBookOrganization:
             curr_node.manager_node = manager_node
             
     def get_org_budget(self, employee_id):
-        # validate the employee_id
-        if employee_id not in self.map.keys():
-            return 0
-        
         # get node that matches employee_id
-        curr_node = self.map[employee_id]
+        curr_node = self.map.get(employee_id)
+        
+        # validate the employee_id
+        if curr_node is None:
+            return 0
         
         # if it's just the ceo and no children
         if curr_node.manager_node is None and curr_node.is_manager is False:
