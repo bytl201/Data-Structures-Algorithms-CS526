@@ -34,11 +34,14 @@ Code Author: Tenzing Lobden
 
 Running Time Analysis of get_top_k
 --------------------
-<Your analysis here>
+O(nlog(n)) because constructing the list from 'count' is O(n) we have to iterate over each key and value. Then also heapify the list is O(n)
+using bottom up construction and then retrieving up to 'k' or len(heap) which is O(n) because k could be 1 million while len(heap) is N. 
+Finally popping from the 'heap' is O(log(n)) because after swapping the last leaf node with the root node then we have to down heap which takes log(n). 
+So in the end O(n) + O(n) + O(nlog(n)) = O(nlog(n))
 
 Running Time Analysis of stream_songs
 --------------------
-<Your analysis here>
+O(n) because we have to iterate over 'songIds' which is O(n), but updating 'count' is O(1) so it's O(n) * O(1) = O(n).
 '''
 
 import heapq
@@ -47,30 +50,32 @@ class AlgoFy:
     def __init__(self, k):
         self.k = k
         self.count = {}
-        self.heap = None
-        self.heap_list = []
 
     def stream_songs(self, songIds):
 
-        # count freq of song_ids
+        # update freq of songIds in count
         for id in songIds:
             # make the count negative so then it turns into max-heap instead of min-heap
             self.count[id] = self.count.get(id, 0) - 1
 
-        # create a list of updates song freq for heapify
-        self.heap_list = [(c, id) for id, c in self.count.items() ]
+    def get_top_k(self):
+        # create a list of updates song freq for heapify O(n)
+        heap = [(c, id) for id, c in self.count.items()]
 
         # heapify the list (uses bottom up construction for O(n) time complexity)
-        self.heap = heapq.heapify(self.heap_list)
-
-    def get_top_k(self):
-        if self.heap is None and len(self.heap_list) == 0:
-             return []
-        else:
-             
-             
+        heapq.heapify(heap)
         
-
+        # hold the most streamed song ids
+        result = []
+        
+        # remove 'k' times or len(heap) which one ever is smaller
+        for _ in range(min(self.k, len(heap))):
+            # heappop() O(log(n)) operation and retrieve 'song_id' only
+            result.append(heapq.heappop(heap)[1])
+        
+        # returns most streamed songIds or [] if heap was empty
+        return result
+        
 
 """
 DO NOT EDIT BELOW THIS
